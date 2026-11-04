@@ -1,0 +1,30 @@
+{
+  "phase": "2",
+  "environment": {
+    "colab": true
+  },
+  "attention": {
+    "naive_ms": 372.344,
+    "vectorized_ms": 1.016,
+    "speedup": 366.48
+  },
+  "threads": {
+    "1": 2482.012,
+    "2": 2122.523,
+    "4": 2003.664,
+    "8": 2232.169
+  },
+  "devices": {
+    "cpu_ms": 460596.1,
+    "gpu_ms": 13213.2
+  },
+  "training": {
+    "steps": 2000,
+    "final_loss": 1.4806,
+    "param_count": 4935680
+  },
+  "sample": "\n\nSeator: and awmers, ard their to prisonce!\n\nQUEEN:\nI would inno As.\n\nLADY KINDre:\nAre not hourder!\nSees I there I take the housint\nAlmasrain, peck'd there dream plike here affect.\n\nKING RICHARD IIIIo",
+  "model": {
+    "gcs_url": "https://storage.googleapis.com/steam-style-511508-s5-eurecomgpt/model.safetensors"
+  }
+}
