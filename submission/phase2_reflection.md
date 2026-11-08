@@ -20,17 +20,21 @@ retype from memory; they are checked against it.
 
 | | Value |
 |---|---|
-| Naive attention, ms (`attention.naive_ms`) | <!--answer:attn_naive_ms-->TODO<!--/answer--> |
-| Vectorized attention, ms (`attention.vectorized_ms`) | <!--answer:attn_vectorized_ms-->TODO<!--/answer--> |
-| CPU training, ms for 100 steps (`devices.cpu_ms`) | <!--answer:cpu_ms-->TODO<!--/answer--> |
-| GPU training, ms for 100 steps (`devices.gpu_ms`) | <!--answer:gpu_ms-->TODO<!--/answer--> |
-| Final training loss (`training.final_loss`) | <!--answer:final_loss-->TODO<!--/answer--> |
+| Naive attention, ms (`attention.naive_ms`) | <!--answer:attn_naive_ms-->372.344<!--/answer--> |
+| Vectorized attention, ms (`attention.vectorized_ms`) | <!--answer:attn_vectorized_ms-->1.016<!--/answer--> |
+| CPU training, ms for 100 steps (`devices.cpu_ms`) | <!--answer:cpu_ms-->460596.1<!--/answer--> |
+| GPU training, ms for 100 steps (`devices.gpu_ms`) | <!--answer:gpu_ms-->13213.2<!--/answer--> |
+| Final training loss (`training.final_loss`) | <!--answer:final_loss-->1.4806<!--/answer--> |
 
 **The thread sweep.** Give your four timings from `threads` — 1, 2, 4 and 8 threads — and say
 which count was fastest. (verbatim: the numbers, in order)
 
 <!--answer:thread_sweep-->
-TODO
+1 thread: 2482.012,
+2 thread: 2122.523,
+4 thread: 2003.664,
+8 thread: 2232.169
+The fastest was 4 threads
 <!--/answer-->
 
 ---
@@ -43,7 +47,7 @@ and what the vectorized one does differently — in terms of the machine, not th
 (~70 words)
 
 <!--answer:vectorization_why-->
-TODO
+The naive implementation spends most of its time executing many small operations individually, repeatedly accessing memory and handling loop overhead. This prevents the CPU from efficiently using its processing units. The vectorized implementation performs the same calculations using large matrix operations, allowing optimized BLAS libraries to exploit SIMD instructions, cache efficiency and multiple CPU cores. As a result, it reduces overhead and executes computations much more efficiently.
 <!--/answer-->
 
 **Where the thread curve flattens, and why.** Using your sweep: more threads stopped helping —
@@ -51,7 +55,7 @@ or started hurting — at some point. Say where, and give the reason. Your Colab
 count is part of the answer; so is what the threads have to coordinate on. (~80 words)
 
 <!--answer:threading_plateau-->
-TODO
+Performance improved up to 4 threads, reaching the lowest execution time of 2003.664 ms. Increasing the number to 8 threads made performance worse (2232.169 ms). This suggests that additional threads introduce coordination and synchronization overhead. Since the exact vCPU count of the Colab runtime was not recorded, it cannot be determined retrospectively.
 <!--/answer-->
 
 **What made the GPU faster.** The model, the data and the step count were identical; only the
@@ -59,7 +63,7 @@ device changed. Say what about a transformer training step suits a GPU, and name
 that would *not* see this speed-up. (~70 words)
 
 <!--answer:gpu_why-->
-TODO
+The main reason is that transformer training involves large matrix multiplications, particularly in attention mechanisms and feed-forward layers. GPUs are designed to perform thousands of similar mathematical operations in parallel, offering much higher computational throughput than CPUs for these workloads. However, a sequential task with many conditional branches and little parallelism, such as processing instructions one by one, would not benefit significantly from GPU acceleration.
 <!--/answer-->
 
 ---
@@ -72,12 +76,16 @@ you do not have, coordination that costs more than it saves, data that has to mo
 which one bound each experiment. One concrete number from section 1 per claim. (~150 words)
 
 <!--answer:parallelism_limit-->
-TODO
+The three experiments show that parallelism has different limitations depending on the workload. In the attention experiment, vectorization achieved a 366.48x speed-up (372.344 ms vs 1.016 ms) by replacing individual operations with optimized matrix computations. This shows how inefficient execution can limit performance when work is not organized to exploit parallel hardware.
+
+In the multithreading experiment, performance improved up to 4 threads (2003.664 ms), but worsened at 8 threads (2232.169 ms). With only 2 vCPUs available, additional threads introduced competition for CPU resources and synchronization overhead.
+
+Finally, GPU training was approximately 34.9x faster than CPU training (460596.1 ms vs 13213.2 ms). Transformers benefit from GPUs because matrix multiplications involve many parallel operations. However, data transfer between CPU and GPU can become a bottleneck, especially for smaller workloads. Overall, parallelism stops helping when serial work, limited hardware resources, coordination costs or data movement outweigh the benefits.
 <!--/answer-->
 
 **What you would measure next.** One experiment this phase did not run that would sharpen the
 answer, and what result would change your mind. (~50 words)
 
 <!--answer:next_experiment-->
-TODO
+I would like measure GPU training time separately for data transfer and actual computation, using different batch sizes. This would help identify whether data movement limits performance. If transferring data takes a significant portion of the total execution time, it would confirm that GPU acceleration is partly limited by memory transfer overhead.
 <!--/answer-->
