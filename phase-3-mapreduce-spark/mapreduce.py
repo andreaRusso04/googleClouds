@@ -43,27 +43,33 @@ def partition(word: str, num_reducers: int) -> int:
     salted per process — see PYTHONHASHSEED), which is a classic distributed-systems bug.
     """
     return zlib.crc32(word.encode("utf-8")) % num_reducers
-
-
 # --------------------------------------------------------------------------- #
 # The three MapReduce primitives YOU implement
 # --------------------------------------------------------------------------- #
 def map_wc(text: str) -> list[tuple[str, int]]:
     """MAP: emit a ``(word, 1)`` pair for every token in one document."""
     # TODO: return a (word, 1) pair for each token in `text` (use tokenize()).
-    raise NotImplementedError("Phase 3: implement map_wc()")
+    tokens = tokenize(text)
+    map_wc = [(word, 1) for word in tokens]
+    return map_wc
 
 
 def shuffle(pairs: list[tuple[str, int]]) -> dict[str, list[int]]:
     """SHUFFLE: group the mapped pairs by key → ``{word: [1, 1, ...]}``."""
-    # TODO: build a dict mapping each word to the list of its emitted values.
-    raise NotImplementedError("Phase 3: implement shuffle()")
+    dict = {}
+    for pair in pairs:
+        if dict.get(pair[0]):
+            dict[pair[0]].append(1)
+        else:
+            dict[pair[0]] = [1]
+    return dict
 
 
 def reduce_wc(grouped: dict[str, list[int]]) -> dict[str, int]:
     """REDUCE: sum each key's values → ``{word: count}``."""
-    # TODO: return {word: sum(values)} for each key in `grouped`.
-    raise NotImplementedError("Phase 3: implement reduce_wc()")
+    for element in grouped:
+        grouped[element] = sum(grouped[element])
+    return grouped
 
 
 # --------------------------------------------------------------------------- #
